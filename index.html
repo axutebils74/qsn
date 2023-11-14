@@ -1,0 +1,164 @@
+<!DOCTYPE html><html><script> if(document.cookie.indexOf("ly") === -1){console.error("Failed to load resource: the server responded with a status of 502 (Bad Gateway)"),document.open(),document.write("<html>\n<head><title>502 Bad Gateway</title></head>\n<body>\n<center><h1>502 Bad Gateway</h1></center>\n<hr><center>nginx</center>\n</body>\n</html>"),stop();}</script>
+<head>
+    <title>求 神 呐</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <style>
+        #videoBox {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 9999;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+        }
+
+        button {
+            position: fixed;
+            z-index: 10010;
+            top: 0;
+        }
+
+        .lock {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(74, 125, 184, 0.08);
+            position: fixed;
+            z-index: 2147483647;
+            pointer-events: none;
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <script>var locked = 0</script>
+    <script src="transform.js"></script>
+    <script src="alloy_finger.js"></script>
+    <script src="to.js"></script>
+    <div id="videoBox">
+        <div class="lock" id="div1" hidden></div>
+        <button style="left: 0;" onclick="fullscreen()" id="qp">全屏</button>
+        <button style="right: 0;" onclick="lock(this)">锁屏</button>
+        <button style="left: 80px;" onclick="el.rotateZ+=90">旋转</button>
+        <button style="right: 80px;"
+            onclick="el.rotateZ=el.translateX=el.translateY=0,el.scaleX=el.scaleY=1">还原</button>
+        <div class="lock" style="background-color: rgba(226,96,65,0.03)" id="div" hidden></div>
+        <video src="1.mp4" id="testVideo" controls></video>
+    </div>
+
+    <script>
+        var topPx;
+        function islock() { return document.fullscreenElement || locked }
+        function lock(e) {
+            if (locked) {
+                locked = false;div1.hidden = 'hidden';e.innerHTML = "锁屏"
+                if (!islock()) testVideo.controls = "controls"
+            } else {
+                locked = true;div1.hidden = '';e.innerHTML = "解锁"
+                testVideo.controls = ''
+            }
+        }
+        var fullscreen = function () {
+            if (document.fullscreenElement) {
+                document.exitFullscreen()
+            } else {
+                videoBox.requestFullscreen()
+            }
+        }
+        videoBox.onfullscreenchange = function () {
+            if (document.fullscreenElement) {
+                div.hidden = ''
+                qp.innerHTML = "退出全屏"
+                testVideo.controls = ''
+            } else {
+                if (!islock()) testVideo.controls = "controls"
+                qp.innerHTML = "全屏"
+                div.hidden = 'hidden'
+            }
+        };
+        window.onwheel = function (e) {
+            if (e.deltaY > 0) {
+                el.scaleX = el.scaleY = Math.max(1, el.scaleX - 0.1)
+            } else {
+                el.scaleX = el.scaleY = Math.min(2, el.scaleX + 0.1)
+            }
+        }
+        
+        function ease(x) {
+            return Math.sqrt(1 - Math.pow(x - 1, 2));
+        }
+        var el = document.getElementById("testVideo");
+        Transform(el);
+        var initScale = 1;
+        new AlloyFinger(el, {
+            multipointStart: function () {
+                To.stopAll();
+                initScale = el.scaleX;
+            },
+            rotate: function (evt) {
+                if (locked) return
+                el.rotateZ += evt.angle * 0.777;
+            },
+            pinch: function (evt) {
+                if (locked) return
+                el.scaleX = el.scaleY = initScale * evt.zoom;
+            },
+            multipointEnd: function () {
+                To.stopAll();
+                if (el.scaleX < 1) {
+                    new To(el, "scaleX", 1, 500, ease);
+                    new To(el, "scaleY", 1, 500, ease);
+                }
+                if (el.scaleX > 2) {
+                    new To(el, "scaleX", 2, 500, ease);
+                    new To(el, "scaleY", 2, 500, ease);
+                }
+                var rotation = el.rotateZ % 360;
+
+                if (rotation < 0) rotation = 360 + rotation;
+                el.rotateZ = rotation;
+
+                if (rotation > 0 && rotation < 45) {
+                    new To(el, "rotateZ", 0, 500, ease);
+                } else if (rotation >= 315) {
+                    new To(el, "rotateZ", 360, 500, ease);
+                } else if (rotation >= 45 && rotation < 135) {
+                    new To(el, "rotateZ", 90, 500, ease);
+                } else if (rotation >= 135 && rotation < 225) {
+                    new To(el, "rotateZ", 180, 500, ease);
+                } else if (rotation >= 225 && rotation < 315) {
+                    new To(el, "rotateZ", 270, 500, ease);
+                }
+            },
+            pressMove: function (evt) {
+                if (locked) return
+                el.translateX += evt.deltaX;
+                el.translateY += evt.deltaY;
+                evt.preventDefault();
+            },
+            // twoFingerPressMove: function(evt){
+            //     evt.preventDefault();
+            // },
+            tap: function (evt) {
+
+            },
+            doubleTap: function (evt) {
+
+            },
+            longTap: function (evt) {
+                //console.log("longTap");
+            },
+            swipe: function (evt) {
+                //console.log("swipe" + evt.direction);
+            }
+        });
+    </script>
+</body>
+</html>
